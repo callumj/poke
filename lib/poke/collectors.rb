@@ -1,0 +1,1 @@
+require 'poke/collectors/mysql_slow_log'

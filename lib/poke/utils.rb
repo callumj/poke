@@ -1,0 +1,1 @@
+require 'poke/utils/data_paging'

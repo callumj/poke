@@ -11,6 +11,8 @@ gem "sqlite3"
 
 gem "rake"
 
+gem "cityhash"
+
 group :development do
   gem 'pry'
 end

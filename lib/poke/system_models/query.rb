@@ -2,7 +2,7 @@ require 'digest'
 
 module Poke
   module SystemModels
-    class SlowQuery < Sequel::Model
+    class Query < Sequel::Model
       
       def before_save
         set_hashes
@@ -16,7 +16,6 @@ module Poke
 
       def set_hashes  
         self.statement_hash  = Digest::SHA256.hexdigest(self.statement)
-        self.occurrence_hash = Digest::SHA256.hexdigest("#{self.occurred_at}#{self.statement}")
       end
 
     end
