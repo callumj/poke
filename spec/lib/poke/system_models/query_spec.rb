@@ -19,4 +19,58 @@ describe Poke::SystemModels::Query do
     res[1].should =~ ["SELECT * FROM `mssql`", "SELECT * FROM `sqlite`"]
   end
 
+  describe ".conditionally_create" do
+
+    it "should create a new record if none exist" do
+      time = Time.at(12)
+      hash = {
+        statement: "SELECT * FROM `nothing`",
+        occurred_at: time,
+        user: "callumj",
+        host: "127.0.0.1",
+        server_id: 19
+      }
+
+      record = described_class.conditionally_create hash
+      record.reload
+      record.statement.should   == hash[:statement]
+      record.occurred_at.should == hash[:occurred_at]
+      record.user.should        == hash[:user]
+      record.host.should        == hash[:host]
+      record.server_id.should   == hash[:server_id]
+    end
+
+    it "should not create a new record if the same statement exists" do
+      time = Time.at(17)
+      existing = described_class.create statement: "SELECT * FROM `yolo`", occurred_at: time
+
+      hash = {
+        statement: "SELECT * FROM `yolo`",
+        occurred_at: time,
+        user: "callumj",
+        host: "127.0.0.1",
+        server_id: 19
+      }
+
+      described_class.conditionally_create(hash).should == existing
+    end
+
+    it "should create a new record if the same statement exists but on a different schema" do
+      time = Time.at(17)
+      existing = described_class.create statement: "SELECT * FROM `yolo`", occurred_at: time, schema: "mysql"
+
+      hash = {
+        statement: "SELECT * FROM `yolo`",
+        occurred_at: time,
+        user: "callumj",
+        host: "127.0.0.1",
+        server_id: 19,
+        schema: "performance_schema"
+      }
+
+      described_class.conditionally_create(hash).should_not == existing
+    end
+
+  end
+
 end

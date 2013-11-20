@@ -7,12 +7,10 @@ module Poke
       def self.conditionally_create(obj_hash)
         existing = where(statement_hash: CityHash.hash64(obj_hash[:statement])).first
 
-        if existing && existing.statement == obj_hash[:statement]
+        if existing && existing.schema == obj_hash[:schema] && existing.statement == obj_hash[:statement]
           return existing
         else
-          obj = new(obj_hash)
-          obj.save
-          obj
+          create obj_hash
         end
       end
 
