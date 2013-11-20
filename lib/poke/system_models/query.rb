@@ -16,6 +16,7 @@ module Poke
 
       def self.most_recent_statements
         max     = Poke::SystemModels::Query.max :occurred_at
+        return nil unless max
         queries = Poke::SystemModels::Query.where(occurred_at: max).select(:statement).to_a
 
         return Time.parse(max), queries.map(&:statement)

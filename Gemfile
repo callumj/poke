@@ -20,5 +20,4 @@ end
 group :testing do
   gem "rspec"
   gem "database_cleaner"
-  gem "rr"
 end

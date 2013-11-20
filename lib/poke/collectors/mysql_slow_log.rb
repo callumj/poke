@@ -11,17 +11,17 @@ module Poke
       def self.process_from_db
         max_time_point = Time.now.utc
 
+        most_recent_occurred_time, most_recent_statements = Poke::SystemModels::Query.most_recent_statements
+
         Poke::Utils::DataPaging.mass_select(target_scope) do |result_batch|
           continue = true
-
-          most_recent_occurred_time, most_recent_statements = Poke::SystemModels::Query.most_recent_statements
 
           result_batch.each do |result|
             if result[:start_time] > max_time_point
               continue = false
               next
             else
-              next if (result[:start_time] < most_recent_occurred_time) || (most_recent_occurred_time == result[:start_time] && most_recent_statements.include?(result[:sql_text]))
+              next if most_recent_occurred_time && ((result[:start_time] < most_recent_occurred_time) || (most_recent_occurred_time == result[:start_time] && most_recent_statements.include?(result[:sql_text])))
               
               query_time = result[:query_time].is_a?(Fixnum) ? result[:query_time] : result[:query_time].try(:seconds_since_midnight)
               lock_time  = result[:lock_time].is_a?(Fixnum) ? result[:lock_time] : result[:lock_time].try(:seconds_since_midnight)

@@ -12,6 +12,7 @@ require 'database_cleaner'
 RSpec.configure do |config|
 
   config.color_enabled = true
+  config.mock_with :rspec
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :truncation

@@ -21,7 +21,7 @@ describe Poke::SystemModels::Query do
   end
 
   it "should set a statement hash on save" do
-    mock(CityHash).hash64("SELECT * FROM `fun`") { 2013 }
+    expect(CityHash).to receive(:hash64).with("SELECT * FROM `fun`").and_return(2013)
     inst = described_class.new statement: "SELECT * FROM `fun`", occurred_at: Time.now
     inst.save
     inst.statement_hash.should == 2013
