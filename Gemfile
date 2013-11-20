@@ -14,5 +14,9 @@ gem "rake"
 gem "cityhash"
 
 group :development do
-  gem 'pry'
+  gem "pry"
+end
+
+group :testing do
+  gem "rspec"
 end
