@@ -54,6 +54,39 @@ describe Poke::Collectors::MysqlSlowLog do
       described_class.process_from_db
     end
 
+    it "should pass a converted object into .process_slow_entry" do
+      target_db = Object.new
+      expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
+
+      expect(Poke).to receive(:target_db).and_return(target_db)
+
+      time_point = Time.now.utc
+
+      t_1 = slow_log_data.first.with_indifferent_access
+      result_a = [t_1]
+
+      expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope) do |&arg|
+        arg.call(result_a).should be_true
+      end
+
+      received = nil
+      expect(described_class).to receive(:process_slow_entry).once do |val|
+        received = val
+      end
+
+      described_class.process_from_db
+
+      received[:occurred_at].should == t_1[:start_time]
+      received[:user].should == "funtimes"
+      received[:host].should == "10.10.24.242"
+      received[:rows_sent].should == 1
+      received[:rows_examined].should == 1771354
+      received[:schema].should == "funtimes_production"
+      received[:last_insert_id].should == 0
+      received[:server_id].should == 28
+      received[:statement].should == "SELECT  `cars`.* FROM `cars` INNER JOIN `activity_cars` ON `activity_cars`.`car_id` = `cars`.`id` INNER JOIN `activities` ON `activities`.`id` = `activity_cars`.`activity_id` WHERE `cars`.`target_id` = 2831 AND `cars`.`target_type` = 'User' AND `cars`.`type` = 'C63' AND `activities`.`subject_type` = 'Drive' AND `activities`.`subject_id` = 90646 ORDER BY `cars`.`position` DESC, `activities`.`enacted_at` DESC, `activities`.`id` DESC LIMIT 1"
+    end
+
   end
 
 end
