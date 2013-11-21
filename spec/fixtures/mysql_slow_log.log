@@ -1,0 +1,70 @@
+/opt/mysql/server-5.6/bin/mysqld, Version: 5.6.14-log (MySQL Community Server (GPL)). started with:
+Tcp port: 0  Unix socket: (null)
+Time                 Id Command    Argument
+/opt/mysql/server-5.6/bin/mysqld, Version: 5.6.14-log (MySQL Community Server (GPL)). started with:
+Tcp port: 0  Unix socket: (null)
+Time                 Id Command    Argument
+# Time: 131120 21:40:37
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 9.046720  Lock_time: 0.010155 Rows_sent: 100  Rows_examined: 1347738
+use employees;
+SET timestamp=1385012437;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%g%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,100;
+# Time: 131120 21:41:12
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 4.498313  Lock_time: 0.026625 Rows_sent: 100  Rows_examined: 1347738
+SET timestamp=1385012472;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%g%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,100;
+# Time: 131120 21:41:49
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 5.985440  Lock_time: 0.002867 Rows_sent: 200  Rows_examined: 3746902
+SET timestamp=1385012509;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
+# Time: 131120 21:44:38
+# User@Host: root[root] @  [192.168.27.2]  Id:     2
+# Query_time: 5.404747  Lock_time: 0.000713 Rows_sent: 200  Rows_examined: 3746902
+SET timestamp=1385012678;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
+# Time: 131120 21:57:33
+# User@Host: root[root] @ localhost []  Id:     4
+# Query_time: 4.275030  Lock_time: 0.000000 Rows_sent: 331603  Rows_examined: 331603
+SET timestamp=1385013453;
+SELECT /*!40001 SQL_NO_CACHE */ * FROM `dept_emp`;
+# Time: 131120 21:57:36
+# User@Host: root[root] @ localhost []  Id:     4
+# Query_time: 3.036925  Lock_time: 0.000000 Rows_sent: 300024  Rows_examined: 300024
+SET timestamp=1385013456;
+SELECT /*!40001 SQL_NO_CACHE */ * FROM `employees`;
+# Time: 131120 21:58:01
+# User@Host: root[root] @ localhost []  Id:     4
+# Query_time: 24.617541  Lock_time: 0.000000 Rows_sent: 2844047  Rows_examined: 2844047
+SET timestamp=1385013481;
+SELECT /*!40001 SQL_NO_CACHE */ * FROM `salaries`;
+# Time: 131120 21:58:05
+# User@Host: root[root] @ localhost []  Id:     4
+# Query_time: 4.284543  Lock_time: 0.000000 Rows_sent: 443308  Rows_examined: 443308
+SET timestamp=1385013485;
+SELECT /*!40001 SQL_NO_CACHE */ * FROM `titles`;
+# Time: 131120 22:00:11
+# User@Host: root[root] @  [192.168.27.2]  Id:     2
+# Query_time: 6.456441  Lock_time: 0.000173 Rows_sent: 200  Rows_examined: 3746902
+use employees_2;
+SET timestamp=1385013611;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
+# Time: 131120 22:00:25
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 6.412003  Lock_time: 0.001869 Rows_sent: 200  Rows_examined: 3746902
+use employees;
+SET timestamp=1385013625;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
+# Time: 131120 22:00:37
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 6.339995  Lock_time: 0.002297 Rows_sent: 200  Rows_examined: 3746902
+SET timestamp=1385013637;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
+# Time: 131120 22:00:47
+# User@Host: root[root] @  [192.168.27.2]  Id:     2
+# Query_time: 6.222229  Lock_time: 0.001695 Rows_sent: 200  Rows_examined: 3746902
+use employees_2;
+SET timestamp=1385013647;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;
