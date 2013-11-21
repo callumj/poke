@@ -52,7 +52,9 @@ describe Poke::Collectors::MysqlSlowLog do
 
       expect(described_class).to receive(:process_slow_entry).once
 
-      described_class.process_from_db
+      Timecop.freeze(time_point) do
+        described_class.process_from_db
+      end
     end
 
     it "should skip an entry if the entry is less than the most recent occurrence" do
