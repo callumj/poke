@@ -54,6 +54,40 @@ describe Poke::Collectors::MysqlSlowLog do
       described_class.process_from_db
     end
 
+    it "should skip an entry if the entry is less than the most recent occurrence" do
+      target_db = Object.new
+      expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
+
+      expect(Poke).to receive(:target_db).and_return(target_db)
+
+      time_point = Time.at(19)
+      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
+        [time_point, []]
+      end
+
+      t_1 = slow_log_data.first.merge(start_time: (time_point - 1.minute)).with_indifferent_access
+      t_2 = slow_log_data[2].merge(start_time: (time_point - 3.minute)).with_indifferent_access
+      t_3 = slow_log_data[3].merge(sql_text: "t_3", start_time: (time_point + 1.minute)).with_indifferent_access
+      t_4 = slow_log_data[4].merge(sql_text: "t_4", start_time: time_point).with_indifferent_access
+      result_a = [t_1]
+      result_b = [t_2]
+      result_c = [t_3, t_4]
+
+      expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope) do |&arg|
+        arg.call(result_a).should be_true
+        arg.call(result_b).should be_true
+        arg.call(result_c).should be_true
+      end
+
+      received = []
+      expect(described_class).to receive(:process_slow_entry).twice do |hash|
+        received << hash
+      end
+
+      described_class.process_from_db
+      received.map { |hash| hash[:statement] }.should =~ ["t_3", "t_4"]
+    end
+
     it "should pass a converted object into .process_slow_entry" do
       target_db = Object.new
       expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
