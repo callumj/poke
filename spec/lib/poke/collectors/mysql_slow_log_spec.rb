@@ -3,11 +3,6 @@ require 'timecop'
 
 describe Poke::Collectors::MysqlSlowLog do
 
-  let(:slow_log_data) do
-    file_contents = File.read(File.join(APP_PATH, "spec", "fixtures", "mysql_slow_log.json"))
-    ActiveSupport::JSON.decode(file_contents)["data"]
-  end
-
   it "should expose the target_db's scope" do
     target_db = Object.new
     expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
@@ -18,6 +13,11 @@ describe Poke::Collectors::MysqlSlowLog do
   end
 
   describe "#process_from_db" do
+
+    let(:slow_log_data) do
+      file_contents = File.read(File.join(APP_PATH, "spec", "fixtures", "mysql_slow_log.json"))
+      ActiveSupport::JSON.decode(file_contents)["data"]
+    end
 
     it "should select from the target scope" do
       target_db = Object.new
