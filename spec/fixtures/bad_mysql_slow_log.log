@@ -1,0 +1,22 @@
+/opt/mysql/server-5.6/bin/mysqld, Version: 5.6.14-log (MySQL Community Server (GPL)). started with:
+Tcp port: 0  Unix socket: (null)
+Time                 Id Command    Argument
+/opt/mysql/server-5.6/bin/mysqld, Version: 5.6.14-log (MySQL Community Server (GPL)). started with:
+Tcp port: 0  Unix socket: (null)
+Time                 Id Command    Argument
+# Time: 131120 21:40:37
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 9.046720  Lock_time: 0.010155 Rows_sent: 100  Rows_examined: 1347738
+use employees;
+SET timestamp=1385012437;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%g%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,100;
+# Time: 131120 21:41:12
+# User@Host: root[root] @  [192.168.27.2]  Id:     1
+# Query_time: 4.498313  Lock_time: 0.026625 Rows_sent: 100  Rows_examined: 1347738
+SET timestamp=1385012472;
+UPDATE salaries SET salary = 0;
+# Time: 131120 21:41:49
+# User@Host: root[root] @  [192.168.27.3]  Id:     1
+# Query_time: 5.985440  Lock_time: 0.002867 Rows_sent: 200  Rows_examined: 3746902
+SET timestamp=1385012509;
+SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;

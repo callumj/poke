@@ -107,10 +107,27 @@ describe Poke::Collectors::MysqlSlowLog do
 
       target_a = received[0..7].map { |h| h[:db] }
       target_a.uniq.should == ["employees"]
-      received[8][:db].should == "employees_2"
-      received[9][:db].should == "employees"
+      received[8][:db].should  == "employees_2"
+      received[9][:db].should  == "employees"
       received[10][:db].should == "employees"
       received[11][:db].should == "employees_2"
+    end
+
+    it "should skip non SELECT statments" do
+      received = []
+      expect(subject).to receive(:process_native_entry).exactly(2).times do |hash|
+        received << hash
+      end
+      subject.process_from_file File.join(APP_PATH, "spec", "fixtures", "bad_mysql_slow_log.log")
+
+      received[1][:sql_text].should  == "SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%a%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,200;"
+      received[1][:user_host].should  == "root[root] @  [192.168.27.3]"
+      received[1][:query_time].should == 5.985440
+      received[1][:lock_time].should  == 0.002867
+      received[1][:rows_sent].should  == 200
+      received[1][:rows_examined].should == 3746902
+      received[1][:start_time].should == Time.at(1385012509)
+      received[1][:server_id].should == 1
     end
 
   end

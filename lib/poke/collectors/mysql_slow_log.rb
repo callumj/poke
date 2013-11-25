@@ -25,7 +25,7 @@ module Poke
         context = nil
         File.foreach(target_file) do |line|
           if line.match(/^#\s+Time:\s+(.+)/)
-            process_native_entry context.merge({db: current_db}) if context
+            process_native_entry context.merge({db: current_db}) if context && context[:sql_text].present?
 
             # begin the context
             extracted_timing = $1
