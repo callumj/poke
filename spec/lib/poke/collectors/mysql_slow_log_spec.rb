@@ -50,7 +50,7 @@ describe Poke::Collectors::MysqlSlowLog do
         arg.call(result_b).should be_false
       end
 
-      expect(described_class).to receive(:process_slow_entry).once
+      expect(described_class).to receive(:process_native_entry).once
 
       Timecop.freeze(time_point) do
         described_class.process_from_db
@@ -83,12 +83,12 @@ describe Poke::Collectors::MysqlSlowLog do
       end
 
       received = []
-      expect(described_class).to receive(:process_slow_entry).twice do |hash|
+      expect(described_class).to receive(:process_native_entry).twice do |hash|
         received << hash
       end
 
       described_class.process_from_db
-      received.map { |hash| hash[:statement] }.should =~ ["t_3", "t_4"]
+      received.map { |hash| hash[:sql_text] }.should =~ ["t_3", "t_4"]
     end
 
     it "should skip an entry if the timing is the same and statement is already known" do
@@ -117,45 +117,82 @@ describe Poke::Collectors::MysqlSlowLog do
       end
 
       received = []
-      expect(described_class).to receive(:process_slow_entry).once do |hash|
+      expect(described_class).to receive(:process_native_entry).once do |hash|
         received << hash
       end
 
       described_class.process_from_db
-      received.map { |hash| hash[:statement] }.should == ["t_3"]
+      received.map { |hash| hash[:sql_text] }.should == ["t_3"]
+    end
+
+  end
+
+  describe ".process_native_entry" do
+
+    let(:time_point_a) { Time.parse("11:10 PM") }
+    let(:time_point_b) { Time.parse("9:13 PM") }
+    let(:time_point_c) { Time.at(19) }
+
+    let(:mysql_hash) do
+      {
+        sql_text: "SELECT * FROM `table`",
+        query_time: time_point_a,
+        lock_time:  time_point_b,
+        user_host:  "funtimes[funtimes] @  [10.10.24.242]",
+        start_time: time_point_c,
+        rows_sent: 19,
+        rows_examined: 23,
+        db: "funtimes_production",
+        last_insert_id: 25,
+        insert_id: 69,
+        server_id: 72,
+      }
     end
 
     it "should pass a converted object into .process_slow_entry" do
-      target_db = Object.new
-      expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
-
-      expect(Poke).to receive(:target_db).and_return(target_db)
-
-      time_point = Time.now.utc
-
-      t_1 = slow_log_data.first.with_indifferent_access
-      result_a = [t_1]
-
-      expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope) do |&arg|
-        arg.call(result_a).should be_true
-      end
-
       received = nil
       expect(described_class).to receive(:process_slow_entry).once do |val|
         received = val
       end
 
-      described_class.process_from_db
+      described_class.process_native_entry(mysql_hash)
 
-      received[:occurred_at].should == t_1[:start_time]
+      received[:occurred_at].should == time_point_c
       received[:user].should == "funtimes"
       received[:host].should == "10.10.24.242"
-      received[:rows_sent].should == 1
-      received[:rows_examined].should == 1771354
+      received[:rows_sent].should == 19
+      received[:rows_examined].should == 23
       received[:schema].should == "funtimes_production"
-      received[:last_insert_id].should == 0
-      received[:server_id].should == 28
-      received[:statement].should == "SELECT  `cars`.* FROM `cars` INNER JOIN `activity_cars` ON `activity_cars`.`car_id` = `cars`.`id` INNER JOIN `activities` ON `activities`.`id` = `activity_cars`.`activity_id` WHERE `cars`.`target_id` = 2831 AND `cars`.`target_type` = 'User' AND `cars`.`type` = 'C63' AND `activities`.`subject_type` = 'Drive' AND `activities`.`subject_id` = 90646 ORDER BY `cars`.`position` DESC, `activities`.`enacted_at` DESC, `activities`.`id` DESC LIMIT 1"
+      received[:last_insert_id].should == 25
+      received[:insert_id].should == 69
+      received[:server_id].should == 72
+      received[:statement].should == "SELECT * FROM `table`"
+      received[:execution_time].should == ((23 * 60 * 60) + (10 * 60)).to_f
+      received[:lock_time].should == ((21 * 60 * 60) + (13 * 60)).to_f
+    end
+
+    it "should support Numeric query_time" do
+      received = nil
+      expect(described_class).to receive(:process_slow_entry).once do |val|
+        received = val
+      end
+
+      mod_hash = mysql_hash.merge(query_time: 23.93)
+      described_class.process_native_entry(mod_hash)
+
+      received[:execution_time].should == 23.93
+    end
+
+    it "should support Numeric lock_time" do
+      received = nil
+      expect(described_class).to receive(:process_slow_entry).once do |val|
+        received = val
+      end
+
+      mod_hash = mysql_hash.merge(lock_time: 29.93)
+      described_class.process_native_entry(mod_hash)
+
+      received[:lock_time].should == 29.93
     end
 
   end
