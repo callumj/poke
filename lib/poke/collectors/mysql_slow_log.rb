@@ -40,14 +40,14 @@ module Poke
               matched = $1
               user_host = matched.gsub(/\][^\]]+$/, "]")
               server_id = matched.match(/Id:\s+(\d+)/).try(:[], 1)
-              context.merge!({user_host: user_host, server_id: server_id})
-            when /^#\s+Query_time:\s+([\d\.]+)\s+Lock_time:\s+([\d\.]+)\s+Rows_sent:\s+([\d\.]+)\s+Rows_examined:\s+([\d\.]+)/
+              context.merge!({user_host: user_host, server_id: server_id.try(:to_i)})
+            when /^#\s+Query_time:\s+([\d\.]+)\s+Lock_time:\s+([\d\.]+)\s+Rows_sent:\s+([\d\.]+)\s+Rows_examined:\s+([\d\.]+)/i
               context.merge!({query_time: $1.to_f, lock_time: $2.to_f, rows_sent: $3.to_i, rows_examined: $4.to_i})
             when /^use\s+([^;]+)/i
               current_db = $1
-            when /^SET\s+timestamp=(\d+)/
+            when /^SET\s+timestamp=(\d+)/i
               context.merge!({start_time: Time.at($1.to_i)})
-            when /^(BEGIN|SELECT|COMMIT)/
+            when /^(BEGIN|SELECT|COMMIT)/i
               current_sql = context[:sql_text] || ""
               current_sql << ";" unless current_sql.empty? || current_sql.last == ";"
               current_sql << line.strip
@@ -56,6 +56,9 @@ module Poke
 
           end
         end
+
+        # finalise
+        process_native_entry context.merge({db: current_db}) if context
       end
 
       def process_from_db

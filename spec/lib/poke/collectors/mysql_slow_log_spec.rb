@@ -17,7 +17,7 @@ describe Poke::Collectors::MysqlSlowLog do
     described_class.target_scope.should == :scope
   end
 
-  describe ".process_from_db" do
+  describe "#process_from_db" do
 
     it "should select from the target scope" do
       target_db = Object.new
@@ -59,7 +59,63 @@ describe Poke::Collectors::MysqlSlowLog do
 
   end
 
-  describe ".process_native_entry" do
+  describe "#process_from_file" do
+
+    it "should raise ArgumentError if no file is passed in" do
+      expect do
+        subject.process_from_file nil
+      end.to raise_error(ArgumentError)
+    end
+
+    it "should raise SlowLogFileNotPresent if file does not exist" do
+      expect do
+        subject.process_from_file "/tmp/1"
+      end.to raise_error(described_class::SlowLogFileNotPresent)
+    end
+
+    it "should be able to process the entries" do
+      expect(subject).to receive(:process_native_entry).exactly(12).times
+      subject.process_from_file File.join(APP_PATH, "spec", "fixtures", "mysql_slow_log.log")
+    end
+
+    it "should be able to extract all required details" do
+      received = nil
+      expect(subject).to receive(:process_native_entry).exactly(12).times do |hash|
+        next if received
+        received  = hash
+      end
+
+      subject.process_from_file File.join(APP_PATH, "spec", "fixtures", "mysql_slow_log.log")
+
+      received[:sql_text].should   == "SELECT * FROM salaries INNER JOIN `employees` ON `employees`.`emp_no` = `salaries`.`emp_no` WHERE employees.first_name LIKE '%g%' AND salaries.salary  >= 50 ORDER BY salaries.from_date ASC LIMIT 0,100;"
+      received[:user_host].should  == "root[root] @  [192.168.27.2]"
+      received[:query_time].should == 9.046720
+      received[:lock_time].should  == 0.010155
+      received[:rows_sent].should  == 100
+      received[:rows_examined].should == 1347738
+      received[:start_time].should == Time.at(1385012437)
+      received[:server_id].should == 1
+    end
+
+    it "should be able to switch DB contexts" do
+      received = []
+      expect(subject).to receive(:process_native_entry).exactly(12).times do |hash|
+        received << hash
+      end
+
+      subject.process_from_file File.join(APP_PATH, "spec", "fixtures", "mysql_slow_log.log")
+
+      target_a = received[0..7].map { |h| h[:db] }
+      target_a.uniq.should == ["employees"]
+      received[8][:db].should == "employees_2"
+      received[9][:db].should == "employees"
+      received[10][:db].should == "employees"
+      received[11][:db].should == "employees_2"
+    end
+
+  end
+
+  describe "#process_native_entry" do
 
     let(:time_point_a) { Time.parse("11:10 PM") }
     let(:time_point_b) { Time.parse("9:13 PM") }
