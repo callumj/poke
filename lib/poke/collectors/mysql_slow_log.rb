@@ -10,12 +10,16 @@ module Poke
       def self.target_scope
         Poke.target_db.fetch("SELECT * FROM #{TBL_NAMESPACE}")
       end
+      delegate :target_scope, to: 'self.class'
 
-      def self.process_from_file(target_file = Poke::Config["target_mysql_slow_log_file"])
+      def self.process_slow_entry(obj_hash)
+        Poke::SystemModels::Query.conditionally_create obj_hash
+      end
+      delegate :process_slow_entry, to: 'self.class'
+
+      def process_from_file(target_file = Poke::Config["target_mysql_slow_log_file"])
         raise ArgumentError, "File not specified" unless target_file
         raise SlowLogFileNotPresent, "#{target_file} could not be located" unless File.exists?(target_file)
-
-        most_recent_occurred_time, most_recent_statements = Poke::SystemModels::Query.most_recent_statements
 
         current_db = nil
         context = nil
@@ -54,7 +58,7 @@ module Poke
         end
       end
 
-      def self.process_from_db
+      def process_from_db
         max_time_point = Time.now.utc
 
         most_recent_occurred_time, most_recent_statements = Poke::SystemModels::Query.most_recent_statements
@@ -67,8 +71,6 @@ module Poke
               continue = false
               next
             else
-              next if most_recent_occurred_time && ((result[:start_time] < most_recent_occurred_time) || (most_recent_occurred_time == result[:start_time] && most_recent_statements.include?(result[:sql_text])))
-
               process_native_entry result
             end
           end
@@ -77,7 +79,9 @@ module Poke
         end
       end
 
-      def self.process_native_entry(native_hash)
+      def process_native_entry(native_hash)
+        return if most_recent_occurred_time && ((native_hash[:start_time] < most_recent_occurred_time) || (most_recent_occurred_time == native_hash[:start_time] && most_recent_statements.include?(native_hash[:sql_text])))
+
         query_time = native_hash[:query_time].is_a?(Numeric) ? native_hash[:query_time] : native_hash[:query_time].try(:seconds_since_midnight)
         lock_time  = native_hash[:lock_time].is_a?(Numeric) ? native_hash[:lock_time] : native_hash[:lock_time].try(:seconds_since_midnight)
 
@@ -96,20 +100,27 @@ module Poke
           statement:      native_hash[:sql_text],
           user:           user_part,
           host:           host_part,
-          collected_from: self.name
+          collected_from: self.class.name
         }
 
         process_slow_entry hash
       end
 
-      def self.process_slow_entry(obj_hash)
-        Poke::SystemModels::Query.conditionally_create obj_hash
-      end
-
-
       private
 
-        def self.extract_auth_details(string)
+        def most_recent_query
+          @most_recent_query ||= Poke::SystemModels::Query.most_recent_statements
+        end
+
+        def most_recent_occurred_time
+          most_recent_query.try :first
+        end
+
+        def most_recent_statements
+          most_recent_query.try :last
+        end
+
+        def extract_auth_details(string)
           string.split("@").map { |p| p.strip.gsub(/(.*\[)|(\].*)/, "") }
         end
 

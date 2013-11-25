@@ -27,7 +27,7 @@ describe Poke::Collectors::MysqlSlowLog do
 
       expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope)
 
-      described_class.process_from_db
+      subject.process_from_db
     end
 
     it "should return false inside the block if it reaches a point that is older" do
@@ -50,79 +50,11 @@ describe Poke::Collectors::MysqlSlowLog do
         arg.call(result_b).should be_false
       end
 
-      expect(described_class).to receive(:process_native_entry).once
+      expect(subject).to receive(:process_native_entry).once
 
       Timecop.freeze(time_point) do
-        described_class.process_from_db
+        subject.process_from_db
       end
-    end
-
-    it "should skip an entry if the entry is less than the most recent occurrence" do
-      target_db = Object.new
-      expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
-
-      expect(Poke).to receive(:target_db).and_return(target_db)
-
-      time_point = Time.at(19)
-      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
-        [time_point, []]
-      end
-
-      t_1 = slow_log_data.first.merge(start_time: (time_point - 1.minute)).with_indifferent_access
-      t_2 = slow_log_data[2].merge(start_time: (time_point - 3.minute)).with_indifferent_access
-      t_3 = slow_log_data[3].merge(sql_text: "t_3", start_time: (time_point + 1.minute)).with_indifferent_access
-      t_4 = slow_log_data[4].merge(sql_text: "t_4", start_time: time_point).with_indifferent_access
-      result_a = [t_1]
-      result_b = [t_2]
-      result_c = [t_3, t_4]
-
-      expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope) do |&arg|
-        arg.call(result_a).should be_true
-        arg.call(result_b).should be_true
-        arg.call(result_c).should be_true
-      end
-
-      received = []
-      expect(described_class).to receive(:process_native_entry).twice do |hash|
-        received << hash
-      end
-
-      described_class.process_from_db
-      received.map { |hash| hash[:sql_text] }.should =~ ["t_3", "t_4"]
-    end
-
-    it "should skip an entry if the timing is the same and statement is already known" do
-      target_db = Object.new
-      expect(target_db).to receive(:fetch).with("SELECT * FROM #{described_class::TBL_NAMESPACE}").and_return(:scope)
-
-      expect(Poke).to receive(:target_db).and_return(target_db)
-
-      time_point = Time.at(19)
-      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
-        [time_point, ["t_4"]]
-      end
-
-      t_1 = slow_log_data.first.merge(start_time: (time_point - 1.minute)).with_indifferent_access
-      t_2 = slow_log_data[2].merge(start_time: (time_point - 3.minute)).with_indifferent_access
-      t_3 = slow_log_data[3].merge(sql_text: "t_3", start_time: (time_point + 1.minute)).with_indifferent_access
-      t_4 = slow_log_data[4].merge(sql_text: "t_4", start_time: time_point).with_indifferent_access
-      result_a = [t_1]
-      result_b = [t_2]
-      result_c = [t_3, t_4]
-
-      expect(Poke::Utils::DataPaging).to receive(:mass_select).with(:scope) do |&arg|
-        arg.call(result_a).should be_true
-        arg.call(result_b).should be_true
-        arg.call(result_c).should be_true
-      end
-
-      received = []
-      expect(described_class).to receive(:process_native_entry).once do |hash|
-        received << hash
-      end
-
-      described_class.process_from_db
-      received.map { |hash| hash[:sql_text] }.should == ["t_3"]
     end
 
   end
@@ -151,11 +83,11 @@ describe Poke::Collectors::MysqlSlowLog do
 
     it "should pass a converted object into .process_slow_entry" do
       received = nil
-      expect(described_class).to receive(:process_slow_entry).once do |val|
+      expect(subject).to receive(:process_slow_entry).once do |val|
         received = val
       end
 
-      described_class.process_native_entry(mysql_hash)
+      subject.process_native_entry(mysql_hash)
 
       received[:occurred_at].should == time_point_c
       received[:user].should == "funtimes"
@@ -173,26 +105,70 @@ describe Poke::Collectors::MysqlSlowLog do
 
     it "should support Numeric query_time" do
       received = nil
-      expect(described_class).to receive(:process_slow_entry).once do |val|
+      expect(subject).to receive(:process_slow_entry).once do |val|
         received = val
       end
 
       mod_hash = mysql_hash.merge(query_time: 23.93)
-      described_class.process_native_entry(mod_hash)
+      subject.process_native_entry(mod_hash)
 
       received[:execution_time].should == 23.93
     end
 
     it "should support Numeric lock_time" do
       received = nil
-      expect(described_class).to receive(:process_slow_entry).once do |val|
+      expect(subject).to receive(:process_slow_entry).once do |val|
         received = val
       end
 
       mod_hash = mysql_hash.merge(lock_time: 29.93)
-      described_class.process_native_entry(mod_hash)
+      subject.process_native_entry(mod_hash)
 
       received[:lock_time].should == 29.93
+    end
+
+    it "should skip an entry if the entry is less than the most recent occurrence" do
+      time_point = Time.at(19)
+      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
+        [time_point, []]
+      end
+
+      mod_hash = mysql_hash.merge(start_time: (time_point - 1.minute))
+
+      expect(subject).to_not receive(:process_slow_entry)
+
+      subject.process_native_entry mod_hash
+    end
+
+    it "should skip an entry if the timing is the same and statement is already known" do
+      time_point = Time.at(19)
+      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
+        [time_point, ["t_4"]]
+      end
+
+      mod_hash = mysql_hash.merge(start_time: time_point, sql_text: "t_4")
+
+      expect(subject).to_not receive(:process_slow_entry)
+
+      subject.process_native_entry mod_hash
+    end
+
+    it "should not skip an entry if the timing is the same and statement is not already known" do
+      time_point = Time.at(19)
+      expect(Poke::SystemModels::Query).to receive(:most_recent_statements) do 
+        [time_point, ["t_4"]]
+      end
+
+      mod_hash = mysql_hash.merge(start_time: time_point, sql_text: "t_3")
+
+      received = nil
+      expect(subject).to receive(:process_slow_entry).once do |val|
+        received = val
+      end
+
+      subject.process_native_entry mod_hash
+
+      received[:statement].should == "t_3"
     end
 
   end
