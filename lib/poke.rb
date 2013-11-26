@@ -27,6 +27,7 @@ end
 require 'poke/config'
 require 'poke/utils'
 require 'poke/collectors'
+require 'poke/analyzers'
 
 Poke.init
 require 'poke/system_models'
