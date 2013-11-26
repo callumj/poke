@@ -1,0 +1,1 @@
+require 'poke/analyzers/mysql_explain'
