@@ -32,13 +32,13 @@ describe Poke::SystemModels::ExecutionEvent do
     subject.name_hash.should == 1975
   end
 
-  describe ".find_or_create" do
+  describe ".conditionally_create" do
 
     it "should create" do
       described_class.by_name("crash").should be_empty
       res = nil
       expect do
-        res = described_class.find_or_create("crash")
+        res = described_class.conditionally_create("crash")
       end.to change { described_class.by_name("crash").count }.from(0).to(1)
 
       res.name.should == "crash"
@@ -48,7 +48,7 @@ describe Poke::SystemModels::ExecutionEvent do
       subject = described_class.create name: "crash"
       res = nil
       expect do
-        res = described_class.find_or_create("crash")
+        res = described_class.conditionally_create("crash")
       end.to_not change { described_class.by_name("crash").count }.from(1)
 
       res.should == subject

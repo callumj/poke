@@ -4,7 +4,7 @@ module Poke
   module SystemModels
     class ExecutionEvent < Sequel::Model
 
-      def self.find_or_create(event_name)
+      def self.conditionally_create(event_name)
         first = by_name(event_name).first
         first ||= create(name: event_name)
       end
