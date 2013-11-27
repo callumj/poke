@@ -37,4 +37,24 @@ describe Poke::Analyzers::MysqlExplain do
     3.times { subject.explain_result.should == ["hello"] }
   end
 
+  describe ".sanitise_events" do
+
+    it "should return a empty array when Nil given" do
+      described_class.sanitise_events(nil).should == []
+    end
+
+    it "should return a empty array when empty given" do
+      described_class.sanitise_events([]).should == []
+    end
+
+    it "should split out semi-colon delimited" do
+      described_class.sanitise_events("hello;my; people;").should =~ ["hello", "my", "people"]
+    end
+
+    it "should extract MySQL's Using" do
+      described_class.sanitise_events("hello;my; people; Using index; Using where;").should =~ ["hello", "my", "people", "index", "where"]
+    end
+
+  end
+
 end
