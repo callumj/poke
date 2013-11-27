@@ -37,7 +37,7 @@ module Poke
 
         # kill off remaining
         query.query_executions.each do |q|
-          query.remove_query_execution q if q.order > max_order
+          q.delete if q.order > max_order
         end
       end
 
