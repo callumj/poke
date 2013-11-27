@@ -29,4 +29,33 @@ describe Poke::SystemModels::QueryExecution do
     subject.execution_events.to_a.should =~ [event_a, event_b]
   end
 
+  describe "hashing" do
+
+    it "should be able to hash all needed" do
+      subject = described_class.new select_method: "SIMPLE", index_method: "ref", selected_index: "PRIMARY"
+      expect(CityHash).to receive(:hash64).with("SIMPLE")  { 1975 }
+      expect(CityHash).to receive(:hash64).with("ref")     { 1901 }
+      expect(CityHash).to receive(:hash64).with("PRIMARY") { 1999 }
+
+      subject.save
+
+      subject.select_method_hash.should  == 1975
+      subject.index_method_hash.should   == 1901
+      subject.selected_index_hash.should == 1999
+    end
+
+    it "should not hash nil values" do
+      subject = described_class.new select_method: "SIMPLE", selected_index: "PRIMARY"
+      expect(CityHash).to receive(:hash64).with("SIMPLE")  { 1975 }
+      expect(CityHash).to receive(:hash64).with("PRIMARY") { 1999 }
+
+      subject.save
+
+      subject.select_method_hash.should  == 1975
+      subject.index_method_hash.should   be_nil
+      subject.selected_index_hash.should == 1999
+    end
+
+  end
+
 end
