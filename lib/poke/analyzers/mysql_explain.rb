@@ -8,14 +8,36 @@ module Poke
         @query = query
       end
 
-      def attach_to_queries
+      def attach_to_query
+        max_order = -1
         executions.each do |hash|
-          existing = query.query_executions.select { |exec| exec.table == hash[:table] }.first
+          existing = query.query_executions.eager(:execution_events).detect { |exec| exec.order == hash[:order] }
           if existing
             existing.update(hash.except(:events))
+
+            # attach events
+            event_names = hash[:events]
+            existing_event_names = existing.events
+            new_events = event_names - existing_event_names
+            deleteable_events = existing_event_names - event_names
+
+            new_events.each do |event_name|
+              existing.add_execution_event Poke::SystemModels::ExecutionEvent.conditionally_create event_name
+            end
+
+            deleteable_events.each do |event_name|
+              existing.remove_execution_event Poke::SystemModels::ExecutionEvent.conditionally_create event_name
+            end
           else
             query.add_query_execution hash
           end
+
+          max_order = hash[:order] if hash[:order] > max_order
+        end
+
+        # kill off remaining
+        query.query_executions.each do |q|
+          query.remove_query_execution q if q.order > max_order
         end
       end
 

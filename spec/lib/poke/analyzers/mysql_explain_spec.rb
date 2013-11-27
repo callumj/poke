@@ -37,6 +37,128 @@ describe Poke::Analyzers::MysqlExplain do
     3.times { subject.explain_result.should == ["hello"] }
   end
 
+  describe "#attach_to_query" do
+
+    it "should add a query execution if none exist" do
+      array = []
+      expect(array).to receive(:eager).with(:execution_events).twice { [] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:add_query_execution).with({order: 0, id: 1})
+      expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1},
+          {order: 1, id: 2}
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
+    it "should replace existing query executions" do
+      replaceable = Object.new
+      expect(replaceable).to receive(:order).exactly(3).times { 0 }
+      expect(replaceable).to receive(:update).with({order: 0, id: 1})
+      expect(replaceable).to receive(:events) { [] }
+
+      array = [replaceable]
+      expect(array).to receive(:eager).with(:execution_events).twice { [replaceable] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1, events: []},
+          {order: 1, id: 2}
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
+    it "should be able to add existing events" do
+      obj = Object.new
+      expect(Poke::SystemModels::ExecutionEvent).to receive(:conditionally_create).with("thing") { obj }
+
+      replaceable = Object.new
+      expect(replaceable).to receive(:order).exactly(2).times { 0 }
+      expect(replaceable).to receive(:update).with({order: 0, id: 1})
+      expect(replaceable).to receive(:events) { [] }
+      expect(replaceable).to receive(:add_execution_event).with(obj)
+
+      array = [replaceable]
+      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(2).times { array }
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1, events: ["thing"]},
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
+    it "should be able to remove no longer existing events" do
+      obj = Object.new
+      expect(Poke::SystemModels::ExecutionEvent).to receive(:conditionally_create).with("thing") { obj }
+
+      replaceable = Object.new
+      expect(replaceable).to receive(:order).exactly(2).times { 0 }
+      expect(replaceable).to receive(:update).with({order: 0, id: 1})
+      expect(replaceable).to receive(:events) { ["thing"] }
+      expect(replaceable).to receive(:remove_execution_event).with(obj)
+
+      array = [replaceable]
+      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(2).times { array }
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1, events: []},
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
+    it "should not touch existing events" do
+      replaceable = Object.new
+      expect(replaceable).to receive(:order).exactly(2).times { 0 }
+      expect(replaceable).to receive(:update).with({order: 0, id: 1})
+      expect(replaceable).to receive(:events) { ["thing"] }
+
+      array = [replaceable]
+      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(2).times { array }
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1, events: ["thing"]},
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
+  end
+
   describe "#executions" do
 
     it "should order them as the DB spits them out" do
@@ -86,6 +208,14 @@ describe Poke::Analyzers::MysqlExplain do
         ]
       end
 
+      expect(subject).to receive(:sanitise_events).with("1_event_a;1_event_b; 1_event_c") do
+        ["1", "2", "3"]
+      end
+
+      expect(subject).to receive(:sanitise_events).with("2_event_a;2_event_b; 2_event_c") do
+        ["4", "5", "6"]
+      end
+
       subject.executions.should == [
         {
           order: 0,
@@ -96,7 +226,7 @@ describe Poke::Analyzers::MysqlExplain do
           selected_index:   "1_key",
           index_length_used: 1,
           rows_examined:     101,
-          events:            ["1_event_a", "1_event_b", "1_event_c"]
+          events:            ["1", "2", "3"]
         },
         {
           order: 1,
@@ -107,7 +237,7 @@ describe Poke::Analyzers::MysqlExplain do
           selected_index:   "2_key",
           index_length_used: 2,
           rows_examined:     202,
-          events:            ["2_event_a", "2_event_b", "2_event_c"]
+          events:            ["4", "5", "6"]
         }
       ]
     end
