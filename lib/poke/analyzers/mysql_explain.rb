@@ -39,7 +39,7 @@ module Poke
             select_method:      res[:select_type],
             index_method:       res[:ref],
             table:              res[:table],
-            possible_indexes:   res[:possible_keys].try(:split, ",") || [],
+            possible_indexes:   res[:possible_keys].try(:split, /,\s*/) || [],
             selected_index:     res[:key],
             index_length_used:  res[:key_len],
             rows_examined:      res[:rows],
