@@ -95,6 +95,12 @@ describe Poke::SystemModels::QueryExecution do
       subject.possible_indexes.should == []
     end
 
+    it "should not like other types" do
+      expect do
+        subject.possible_indexes = {}
+      end.to raise_error(ArgumentError)
+    end
+
   end
 
 end

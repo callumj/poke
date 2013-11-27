@@ -16,6 +16,7 @@ module Poke
       end
 
       def possible_indexes=(val)
+        raise ArgumentError, "Must be an Array or nil" unless val.is_a?(Array) || val.nil?
         val = [] if val.nil?
         @possible_indexes = val
       end
