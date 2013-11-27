@@ -27,7 +27,7 @@ module Poke
 
       def explain_result
         @explain_result ||= begin
-          db = Poke.target_db << "USE #{query.schema}"
+          db = Poke.target_db << "USE `#{query.schema}`"
           db["EXPLAIN #{explainable_query}"].all
         end
       end
