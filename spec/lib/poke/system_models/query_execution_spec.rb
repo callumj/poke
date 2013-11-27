@@ -101,6 +101,11 @@ describe Poke::SystemModels::QueryExecution do
       end.to raise_error(ArgumentError)
     end
 
+    it "should be assignable" do
+      subject = described_class.new possible_indexes: ["PRIMARY", "new"]
+      subject.possible_indexes.should =~ ["PRIMARY", "new"]
+    end
+
   end
 
 end
