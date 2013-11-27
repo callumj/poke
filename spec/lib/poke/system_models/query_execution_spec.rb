@@ -91,6 +91,10 @@ describe Poke::SystemModels::QueryExecution do
       subject.possible_indexes.should == []
     end
 
+    it "should return empty as default" do
+      subject.possible_indexes.should == []
+    end
+
   end
 
 end
