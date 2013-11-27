@@ -49,6 +49,7 @@ module Poke
       end
 
       def self.sanitise_events(extras)
+        return [] unless extras.present?
         extras.split(/;\s*/).map do |extra|
           extra.gsub(/^Using\s+/i, "")
         end
