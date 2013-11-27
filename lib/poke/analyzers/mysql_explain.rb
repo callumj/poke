@@ -8,6 +8,17 @@ module Poke
         @query = query
       end
 
+      def attach_to_queries
+        executions.each do |hash|
+          existing = query.query_executions.select { |exec| exec.table == hash[:table] }.first
+          if existing
+            existing.update(hash.except(:events))
+          else
+            query.add_query_execution hash
+          end
+        end
+      end
+
       def explainable_query
         @explainable_query ||= begin
           query.statement.gsub(/(BEGIN|COMMIT);?\s*/i, "").strip
