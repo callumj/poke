@@ -18,6 +18,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
+    Poke::SystemModels::ExecutionEvent.event_cache.clear
     DatabaseCleaner.start
   end
 

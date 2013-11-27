@@ -54,6 +54,19 @@ describe Poke::SystemModels::ExecutionEvent do
       res.should == subject
     end
 
+    it "should cache" do
+      described_class.by_name("crash").should be_empty
+      res = nil
+      expect do
+        res = described_class.conditionally_create("crash")
+      end.to change { described_class.event_cache["crash"] }.from(nil)
+
+      described_class.event_cache["crash"].should == res
+
+      expect(described_class).to_not receive(:by_name).with("crash")
+      described_class.conditionally_create("crash").should == res
+    end
+
   end
 
 end
