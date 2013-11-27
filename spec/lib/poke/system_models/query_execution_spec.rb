@@ -108,4 +108,38 @@ describe Poke::SystemModels::QueryExecution do
 
   end
 
+  describe "#events" do
+
+    it "should map the names of the underlying execution events" do
+      event_a = Poke::SystemModels::ExecutionEvent.conditionally_create("temporary")
+      event_b = Poke::SystemModels::ExecutionEvent.conditionally_create("filesort")
+      event_c = Poke::SystemModels::ExecutionEvent.conditionally_create("index")
+
+      subject = described_class.create
+      subject.add_execution_event event_a
+      subject.add_execution_event event_b
+      subject.save
+
+      subject.events.should =~ ["temporary", "filesort"]
+    end
+
+    it "should allow events to be set on new records" do
+      subject = described_class.new
+      subject.events = ["thing"]
+      subject.save
+
+      expect do
+        subject.events = ["other"]
+      end.to raise_error
+
+      subject = described_class.find id: subject.id
+      subject.events.should == ["thing"]
+
+      expect do
+        subject.events = ["other"]
+      end.to raise_error
+    end
+
+  end
+
 end

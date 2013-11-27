@@ -21,10 +21,23 @@ module Poke
         @possible_indexes = val
       end
 
+      def events
+        @events ||= execution_events.map(&:name)
+      end
+
+      def events=(set)
+        raise "Can only be set on new records" unless new?
+        @events_to_write = Array.wrap(set)
+      end
+
       def before_save
         set_hashes
         reflect_possible_indexes
         super
+      end
+
+      def after_save
+        apply_events
       end
 
       def set_hashes  
@@ -35,6 +48,15 @@ module Poke
 
       def reflect_possible_indexes
         self.possible_indexes_serialized = @possible_indexes.try(:to_json) if defined?(@possible_indexes)
+      end
+
+      def apply_events
+        return unless @events_to_write
+
+        @events_to_write.each do |event_name|
+          add_execution_event Poke::SystemModels::ExecutionEvent.conditionally_create event_name
+        end
+        @events_to_write = nil
       end
     end
   end
