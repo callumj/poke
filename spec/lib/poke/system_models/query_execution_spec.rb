@@ -58,4 +58,39 @@ describe Poke::SystemModels::QueryExecution do
 
   end
 
+  describe "#possible_indexes" do
+
+    it "should be able to store and fetch" do
+      subject = described_class.new
+      subject.possible_indexes << "PRIMARY"
+      subject.possible_indexes.should == ["PRIMARY"]
+      subject.save
+
+      subject = described_class.find id: subject.id
+      subject.possible_indexes.should == ["PRIMARY"]
+      subject.possible_indexes << "col1"
+      subject.save
+
+      subject = described_class.find id: subject.id
+      subject.possible_indexes.should =~ ["PRIMARY", "col1"]
+    end
+
+    it "should allow for erasing" do
+      subject = described_class.new
+      subject.possible_indexes << "PRIMARY"
+      subject.possible_indexes.should == ["PRIMARY"]
+      subject.save
+
+      subject = described_class.find id: subject.id
+      subject.possible_indexes.should == ["PRIMARY"]
+      subject.possible_indexes = nil
+      subject.possible_indexes.should == []
+      subject.save
+
+      subject = described_class.find id: subject.id
+      subject.possible_indexes.should == []
+    end
+
+  end
+
 end
