@@ -157,6 +157,30 @@ describe Poke::Analyzers::MysqlExplain do
       subject.attach_to_query
     end
 
+    it "should kill off remaining events that aren't known" do
+      removable = Object.new
+      expect(removable).to receive(:order).exactly(3).times { 2 }
+
+      array = [removable]
+      expect(array).to receive(:eager).with(:execution_events).twice { [removable] }
+
+      query = Object.new
+      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:add_query_execution).with({order: 0, id: 1, events: []})
+      expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
+      expect(query).to receive(:remove_query_execution).with(removable)
+
+      subject = described_class.new(query)
+      expect(subject).to receive(:executions) do
+        [
+          {order: 0, id: 1, events: []},
+          {order: 1, id: 2}
+        ]
+      end
+
+      subject.attach_to_query
+    end
+
   end
 
   describe "#executions" do
