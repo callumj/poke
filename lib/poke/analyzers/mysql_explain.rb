@@ -79,6 +79,7 @@ module Poke
           {
             order:              order,
             select_method:      res[:select_type],
+            join_method:        res[:type],
             index_method:       res[:ref],
             table:              res[:table],
             possible_indexes:   res[:possible_keys].try(:split, /,\s*/) || [],

@@ -41,9 +41,10 @@ module Poke
       end
 
       def set_hashes  
-        self.select_method_hash = CityHash.hash64(self.select_method)  if self.select_method
+        self.select_method_hash  = CityHash.hash64(self.select_method)  if self.select_method
         self.index_method_hash   = CityHash.hash64(self.index_method)   if self.index_method
         self.selected_index_hash = CityHash.hash64(self.selected_index) if self.selected_index
+        self.join_method_hash    = CityHash.hash64(self.join_method) if self.join_method
       end
 
       def reflect_possible_indexes

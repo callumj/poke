@@ -32,6 +32,9 @@ Poke.system_db.create_table? :query_executions do
   String        :select_method
   Bignum        :select_method_hash
 
+  String        :join_method
+  Bignum        :join_method_hash
+
   String        :index_method
   Bignum        :index_method_hash
 
@@ -48,6 +51,7 @@ Poke.system_db.create_table? :query_executions do
   index :select_method_hash
   index :index_method_hash
   index :selected_index_hash
+  index :join_method_hash
   index :query_id
 end
 

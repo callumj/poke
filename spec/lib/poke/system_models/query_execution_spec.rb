@@ -32,16 +32,18 @@ describe Poke::SystemModels::QueryExecution do
   describe "hashing" do
 
     it "should be able to hash all needed" do
-      subject = described_class.new select_method: "SIMPLE", index_method: "ref", selected_index: "PRIMARY"
+      subject = described_class.new select_method: "SIMPLE", index_method: "ref", selected_index: "PRIMARY", join_method: "ALL"
       expect(CityHash).to receive(:hash64).with("SIMPLE")  { 1975 }
       expect(CityHash).to receive(:hash64).with("ref")     { 1901 }
       expect(CityHash).to receive(:hash64).with("PRIMARY") { 1999 }
+      expect(CityHash).to receive(:hash64).with("ALL")     { 2013 }
 
       subject.save
 
       subject.select_method_hash.should  == 1975
       subject.index_method_hash.should   == 1901
       subject.selected_index_hash.should == 1999
+      subject.join_method_hash.should    == 2013
     end
 
     it "should not hash nil values" do

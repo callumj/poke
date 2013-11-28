@@ -249,6 +249,7 @@ describe Poke::Analyzers::MysqlExplain do
         [
           {
             select_type:   "1_select_type",
+            type:          "1_ALL",
             ref:           "1_ref",
             table:         "1_table",
             possible_keys: "1_key_a, 1_key_b,1_key_c",
@@ -259,6 +260,7 @@ describe Poke::Analyzers::MysqlExplain do
           },
           {
             select_type:   "2_select_type",
+            type:          "2_ALL",
             ref:           "2_ref",
             table:         "2_table",
             possible_keys: "2_key_a, 2_key_b,2_key_c",
@@ -282,6 +284,7 @@ describe Poke::Analyzers::MysqlExplain do
         {
           order: 0,
           select_method:    "1_select_type",
+          join_method:      "1_ALL",
           index_method:     "1_ref",
           table:            "1_table",
           possible_indexes: ["1_key_a", "1_key_b", "1_key_c"],
@@ -293,6 +296,7 @@ describe Poke::Analyzers::MysqlExplain do
         {
           order: 1,
           select_method:    "2_select_type",
+          join_method:      "2_ALL",
           index_method:     "2_ref",
           table:            "2_table",
           possible_indexes: ["2_key_a", "2_key_b", "2_key_c"],
