@@ -5,7 +5,7 @@ module Poke
       class Error < StandardError; end
       class SlowLogFileNotPresent < Error; end
 
-      TBL_NAMESPACE = "`cj_testing`.`slow_log`"
+      TBL_NAMESPACE = "`mysql`.`slow_log`"
 
       def self.target_scope
         Poke.target_db.fetch("SELECT * FROM #{TBL_NAMESPACE}")
@@ -17,7 +17,7 @@ module Poke
       end
       delegate :process_slow_entry, to: 'self.class'
 
-      def process_from_file(target_file = Poke::Config["target_mysql_slow_log_file"])
+      def process_from_file(target_file)
         raise ArgumentError, "File not specified" unless target_file
         raise SlowLogFileNotPresent, "#{target_file} could not be located" unless File.exists?(target_file)
 
@@ -100,7 +100,7 @@ module Poke
           last_insert_id: native_hash[:last_insert_id],
           insert_id:      native_hash[:insert_id],
           server_id:      native_hash[:server_id],
-          statement:      native_hash[:sql_text],
+          statement:      native_hash[:sql_text].gsub(/\u0000/,""),
           user:           user_part,
           host:           host_part,
           collected_from: self.class.name
