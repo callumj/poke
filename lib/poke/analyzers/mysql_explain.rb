@@ -31,7 +31,7 @@ module Poke
       def attach_to_query
         max_order = -1
         executions.each do |hash|
-          existing = query.query_executions.eager(:execution_events).detect { |exec| exec.order == hash[:order] }
+          existing = query.query_executions.detect { |exec| exec.order == hash[:order] }
           if existing
             existing.update(hash.except(:events))
 

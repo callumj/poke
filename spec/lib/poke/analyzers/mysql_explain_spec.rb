@@ -96,11 +96,8 @@ describe Poke::Analyzers::MysqlExplain do
   describe "#attach_to_query" do
 
     it "should add a query execution if none exist" do
-      array = []
-      expect(array).to receive(:eager).with(:execution_events).twice { [] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:query_executions).exactly(3).times { [] }
       expect(query).to receive(:add_query_execution).with({order: 0, id: 1})
       expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
 
@@ -121,11 +118,8 @@ describe Poke::Analyzers::MysqlExplain do
       expect(replaceable).to receive(:update).with({order: 0, id: 1})
       expect(replaceable).to receive(:events) { [] }
 
-      array = [replaceable]
-      expect(array).to receive(:eager).with(:execution_events).twice { [replaceable] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:query_executions).exactly(3).times { [replaceable] }
       expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
 
       subject = described_class.new(query)
@@ -149,11 +143,8 @@ describe Poke::Analyzers::MysqlExplain do
       expect(replaceable).to receive(:events) { [] }
       expect(replaceable).to receive(:add_execution_event).with(obj)
 
-      array = [replaceable]
-      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(2).times { array }
+      expect(query).to receive(:query_executions).exactly(2).times { [replaceable] }
 
       subject = described_class.new(query)
       expect(subject).to receive(:executions) do
@@ -175,11 +166,8 @@ describe Poke::Analyzers::MysqlExplain do
       expect(replaceable).to receive(:events) { ["thing"] }
       expect(replaceable).to receive(:remove_execution_event).with(obj)
 
-      array = [replaceable]
-      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(2).times { array }
+      expect(query).to receive(:query_executions).exactly(2).times { [replaceable] }
 
       subject = described_class.new(query)
       expect(subject).to receive(:executions) do
@@ -197,11 +185,8 @@ describe Poke::Analyzers::MysqlExplain do
       expect(replaceable).to receive(:update).with({order: 0, id: 1})
       expect(replaceable).to receive(:events) { ["thing"] }
 
-      array = [replaceable]
-      expect(array).to receive(:eager).with(:execution_events).once { [replaceable] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(2).times { array }
+      expect(query).to receive(:query_executions).exactly(2).times { [replaceable] }
 
       subject = described_class.new(query)
       expect(subject).to receive(:executions) do
@@ -218,11 +203,8 @@ describe Poke::Analyzers::MysqlExplain do
       expect(removable).to receive(:order).exactly(3).times { 2 }
       expect(removable).to receive(:delete)
 
-      array = [removable]
-      expect(array).to receive(:eager).with(:execution_events).twice { [removable] }
-
       query = Object.new
-      expect(query).to receive(:query_executions).exactly(3).times { array }
+      expect(query).to receive(:query_executions).exactly(3).times { [removable] }
       expect(query).to receive(:add_query_execution).with({order: 0, id: 1, events: []})
       expect(query).to receive(:add_query_execution).with({order: 1, id: 2})
 

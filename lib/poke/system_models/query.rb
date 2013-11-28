@@ -4,7 +4,7 @@ module Poke
   module SystemModels
     class Query < Sequel::Model
 
-      one_to_many :query_executions, class: "Poke::SystemModels::QueryExecution"
+      one_to_many :query_executions, class: "Poke::SystemModels::QueryExecution", eager: :execution_events
 
       def self.conditionally_create(obj_hash)
         existing = where(statement_hash: CityHash.hash64(obj_hash[:statement])).first
