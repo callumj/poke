@@ -5,14 +5,6 @@ module Poke
       CONFIG_NAMESPACE = "mysql"
 
       def run
-        if Poke.target_db.nil?
-          logger.error "No target database configured. Finishing."
-          return
-        elsif Poke.target_db.adapter_scheme.to_s.match(/^msyql/).present?
-          logger.error "This should only be called on MySQL connections"
-          return
-        end
-
         logger.info "Starting to obtain new queries"
         obtain_queries
         logger.info "Finished obtain new queries"

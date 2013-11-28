@@ -42,6 +42,7 @@ require 'poke/utils'
 require 'poke/collectors'
 require 'poke/analyzers'
 require 'poke/runners'
+require 'poke/background_runner'
 
 Poke.init
 require 'poke/system_models'

@@ -21,6 +21,7 @@ module Poke
             results.concat previous_results
           end
           
+          break if results.length < 10_000
           if primary_key
             max_pk = previous_results.map { |obj| obj.send(primary_key) }.max
 
