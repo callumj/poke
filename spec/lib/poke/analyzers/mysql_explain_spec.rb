@@ -2,6 +2,46 @@ require 'spec_helper'
 
 describe Poke::Analyzers::MysqlExplain do
 
+  describe ".run" do
+
+    it "should loop over queries needing explaining" do
+      q  = Poke::SystemModels::Query.create statement: "SELECT * FROM foo", occurred_at: Time.now
+      q2 = Poke::SystemModels::Query.create statement: "SELECT * FROM bar", occurred_at: Time.now
+      q3 = Poke::SystemModels::Query.create statement: "SELECT * FROM citizen", occurred_at: Time.now
+
+      exec = Poke::SystemModels::QueryExecution.create query: q
+
+      runner = Object.new
+      expect(runner).to receive(:attach_to_query).twice
+      expect(described_class).to receive(:new).twice do |obj|
+        [q2, q3].should include obj
+        runner
+      end
+
+      described_class.run
+    end
+
+    it "should allow for breaking up the set with sleep" do
+      q  = Poke::SystemModels::Query.create statement: "SELECT * FROM foo", occurred_at: Time.now
+      q2 = Poke::SystemModels::Query.create statement: "SELECT * FROM bar", occurred_at: Time.now
+      q3 = Poke::SystemModels::Query.create statement: "SELECT * FROM citizen", occurred_at: Time.now
+
+      exec = Poke::SystemModels::QueryExecution.create query: q
+
+      runner = Object.new
+      expect(runner).to receive(:attach_to_query).twice
+      expect(described_class).to receive(:new).twice do |obj|
+        [q2, q3].should include obj
+        runner
+      end
+
+      expect(described_class).to receive(:sleep).with(19).twice
+
+      described_class.run limit: 1, sleep: 19
+    end
+
+  end
+
   describe ".queries_needing_explain" do
 
     it "should list queries without query_executions" do

@@ -4,9 +4,24 @@ module Poke
 
       attr_reader :query
 
+      def self.run(options = {})
+        limit      = options.fetch(:limit, 50)
+        sleep_time = options[:sleep]
+        scope = queries_needing_explain.limit(limit)
+
+        results = scope.to_a
+        until results.empty?
+          results.each { |q| new(q).attach_to_query }
+
+          sleep sleep_time if sleep_time
+          min_id = results.map(&:id).min
+          results = scope.where("`#{Poke::SystemModels::Query.table_name.to_s}`.`id` < #{min_id}").to_a
+        end
+      end
+
       def self.queries_needing_explain
         query = Poke::SystemModels::Query.ordered.left_join(Poke::SystemModels::QueryExecution, query_id: :id)
-        query.where("#{Poke::SystemModels::QueryExecution.table_name.to_s}.query_id IS NULL").select_all(:queries)
+        query.where("`#{Poke::SystemModels::QueryExecution.table_name.to_s}`.`query_id` IS NULL").select_all(:queries)
       end
 
       def initialize(query)
