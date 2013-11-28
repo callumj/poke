@@ -2,6 +2,22 @@ require 'spec_helper'
 
 describe Poke::Analyzers::MysqlExplain do
 
+  describe ".queries_needing_explain" do
+
+    it "should list queries without query_executions" do
+      q  = Poke::SystemModels::Query.create statement: "SELECT * FROM foo", occurred_at: Time.now
+      q2 = Poke::SystemModels::Query.create statement: "SELECT * FROM bar", occurred_at: Time.now
+      q3 = Poke::SystemModels::Query.create statement: "SELECT * FROM citizen", occurred_at: Time.now
+
+      exec = Poke::SystemModels::QueryExecution.create query: q
+
+      q.query_executions.should be_present
+
+      described_class.queries_needing_explain.to_a.should == [q3, q2]
+    end
+
+  end
+
   it "should strip unusable statements & cache" do
     query = Object.new
     expect(query).to receive(:statement).once do

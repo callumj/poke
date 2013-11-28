@@ -23,6 +23,10 @@ module Poke
 
         return Time.parse(max), queries.map(&:statement)
       end
+
+      def self.ordered
+        order(Sequel.desc(:id))
+      end
       
       def before_save
         set_hashes

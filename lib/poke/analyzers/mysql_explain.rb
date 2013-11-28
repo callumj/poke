@@ -4,6 +4,11 @@ module Poke
 
       attr_reader :query
 
+      def self.queries_needing_explain
+        query = Poke::SystemModels::Query.ordered.left_join(Poke::SystemModels::QueryExecution, query_id: :id)
+        query.where("#{Poke::SystemModels::QueryExecution.table_name.to_s}.query_id IS NULL").select_all(:queries)
+      end
+
       def initialize(query)
         @query = query
       end
