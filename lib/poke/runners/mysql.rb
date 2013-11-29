@@ -14,29 +14,27 @@ module Poke
         logger.info "Finished query analyzing"
       end
 
-      private
+      def obtain_queries
+        mode = Poke::Config["#{CONFIG_NAMESPACE}.collection_mode"]
+        return unless mode
 
-        def obtain_queries
-          mode = Poke::Config["#{CONFIG_NAMESPACE}.collection_mode"]
-          return unless mode
-
-          op = Poke::Collectors::MysqlSlowLog.new
-          case mode
-          when "file"
-            begin
-              op.process_from_file Poke::Config["#{CONFIG_NAMESPACE}.slow_log_file"]
-            rescue ArgumentError, Poke::Collectors::MysqlSlowLog::SlowLogFileNotPresent => e
-              logger.error "Could not collect from slow log file. #{e.message}"              
-            end
-          when "table"
-            op.process_from_db
+        op = Poke::Collectors::MysqlSlowLog.new
+        case mode
+        when "file"
+          begin
+            op.process_from_file Poke::Config["#{CONFIG_NAMESPACE}.slow_log_file"]
+          rescue ArgumentError, Poke::Collectors::MysqlSlowLog::SlowLogFileNotPresent => e
+            logger.error "Could not collect from slow log file. #{e.message}"              
           end
+        when "table"
+          op.process_from_db
         end
+      end
 
-        def run_analyzer
-          return if Poke::Config["#{CONFIG_NAMESPACE}.analyze_enabled"] == false
-          Poke::Analyzers::MysqlExplain.run limit: Poke::Config["#{CONFIG_NAMESPACE}.analyze.limit"], sleep: Poke::Config["#{CONFIG_NAMESPACE}.analyze.sleep"]
-        end
+      def run_analyzer
+        return if Poke::Config["#{CONFIG_NAMESPACE}.analyze_enabled"] == false
+        Poke::Analyzers::MysqlExplain.run limit: Poke::Config["#{CONFIG_NAMESPACE}.analyze.limit"], sleep: Poke::Config["#{CONFIG_NAMESPACE}.analyze.sleep"]
+      end
 
     end
   end
