@@ -1,38 +1,54 @@
 module Poke
 
+  def self.storage_path
+    ENV["POKE_APP_PATH"] || APP_PATH
+  end
+
   def self.system_db_path
-    ENV["SYSTEM_DB_PATH"] || "sqlite://#{APP_PATH}/system.db"
+    ENV["POKE_SYSTEM_DB_PATH"] || "sqlite://#{storage_path}/db/system.db"
   end
 
-  def self.db_options
-    {}.tap do |hash|
-      hash[:logger] = Logger.new("#{APP_PATH}/tmp/logs/db.log")
-    end
+  def self.logger_path(type)
+    type_s = type.to_s.gsub(/\W+/, "_")
+    Config["logger.#{type_s.downcase}.path"] || File.join(storage_path, "logs", "#{type_s.downcase}.log")
   end
 
-  def self.logger_path
-    Config["logger_path"] || ENV["LOGGER_PATH"] || "#{APP_PATH}/tmp/logs/app.log"
-  end
+  def self.logger_for(type)
+    @cached_loggers       ||= {}
 
-  def self.logger
-    @logger ||= Logger.new(logger_path).tap do |log|
+    @cached_loggers[type] ||= Logger.new(logger_path(type), 'weekly').tap do |log|
+      log.level = Logger::WARN
       log.formatter = proc do |severity, datetime, progname, msg|
          "#{datetime.to_s} [#{severity}]: #{msg}\n"
       end
     end
   end
 
+  def self.app_logger
+    @app_logger ||= logger_for(:app)
+  end
+
   def self.system_db
-    @system_db ||= Sequel.connect(system_db_path, db_options)
+    @system_db ||= Sequel.connect(system_db_path)
   end
 
   def self.target_db
-    return unless Config["target_db_path"]
-    @target_db ||= Sequel.connect(Config["target_db_path"], logger: Logger.new(STDOUT))
+    return unless Config["target_db.path"]
+    @target_db ||= Sequel.connect(Config["target_db.path"], logger: logger_for(:target_db))
   end
 
   def self.init
+    require 'fileutils'
+    FileUtils.mkdir_p File.join(storage_path, "logs")
+    FileUtils.mkdir_p File.join(storage_path, "db")
+
+    Utils::DbManagement.init_system_db false
+
     Sequel::Model.db = system_db
+
+    require 'poke/system_models'
+
+    system_db.logger = logger_for(:system_db)
   end
 
 end
@@ -45,4 +61,3 @@ require 'poke/runners'
 require 'poke/background_runner'
 
 Poke.init
-require 'poke/system_models'

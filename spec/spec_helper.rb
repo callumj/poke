@@ -1,5 +1,5 @@
 File.expand_path("#{File.dirname(__FILE__)}/../tmp/testing.db")
-ENV["SYSTEM_DB_PATH"] = "sqlite://#{File.expand_path("#{File.dirname(__FILE__)}/../tmp/testing.db")}"
+ENV["POKE_SYSTEM_DB_PATH"] = "sqlite://#{File.expand_path("#{File.dirname(__FILE__)}/../tmp/testing.db")}"
 load "#{File.dirname(__FILE__)}/../bootstrap.rb"
 
 Bundler.require :default, :development, :testing

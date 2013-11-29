@@ -5,7 +5,7 @@ module Poke
       attr_reader :logger
 
       def initialize
-        @logger = Poke.logger
+        @logger = Poke.app_logger
       end
 
     end

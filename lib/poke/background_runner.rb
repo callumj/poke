@@ -8,19 +8,17 @@ module Poke
 
     def self.kickoff
       if Poke.target_db.nil?
-        Poke.logger.error "Will not start background thread, no DB configured."
+        
         return
       end
 
-      @active_thread = nil
-
-      # kick off
-      case Poke.target_db.adapter_scheme.to_s
-      when /^mysql/
-        @active_thread = new Poke::Runners::Mysql
+      runner = Poke::Runners.runner
+      if runner.nil?
+        Poke.app_logger.error "Will not start background thread, no DB configured."
+      else
+        @active_thread = new(runner)
+        @active_thread.join
       end
-
-      @active_thread.try :join
     end
 
     def self.packdown
