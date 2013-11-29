@@ -32,7 +32,7 @@ module Poke
       end
 
       def run_analyzer
-        return if Poke::Config["#{CONFIG_NAMESPACE}.analyze_enabled"] == false
+        return if Poke::Config["#{CONFIG_NAMESPACE}.analyze.enabled"] == false
         Poke::Analyzers::MysqlExplain.run limit: Poke::Config["#{CONFIG_NAMESPACE}.analyze.limit"], sleep: Poke::Config["#{CONFIG_NAMESPACE}.analyze.sleep"]
       end
 

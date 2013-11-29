@@ -29,6 +29,18 @@ describe Poke::Runners::Mysql do
       subject.obtain_queries
     end
 
+    it "should process from db when mode is table" do
+      expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.collection_mode") do
+        "table"
+      end
+
+      msyql_slow_log = Object.new
+      expect(msyql_slow_log).to receive(:process_from_db)
+      expect(Poke::Collectors::MysqlSlowLog).to receive(:new) { msyql_slow_log }
+
+      subject.obtain_queries
+    end
+
     it "should handle Argument Errors" do
       expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.collection_mode") do
         "file"
@@ -96,6 +108,37 @@ describe Poke::Runners::Mysql do
       expect do
         subject.obtain_queries
       end.to raise_error(arg_error)
+    end
+
+  end
+
+  describe "#run_analyzer" do
+
+    it "should not run if analyze is disabled" do
+      expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.analyze.enabled") do
+        false
+      end
+
+      expect(Poke::Analyzers::MysqlExplain).to_not receive(:run)
+
+      subject.run_analyzer
+    end
+
+    it "should pass through limit and sleep" do
+      expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.analyze.enabled") do
+        nil
+      end
+      expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.analyze.limit") do
+        19
+      end
+      expect(Poke::Config).to receive(:[]).with("#{described_class::CONFIG_NAMESPACE}.analyze.sleep") do
+        23
+      end
+
+
+      expect(Poke::Analyzers::MysqlExplain).to receive(:run).with({limit: 19, sleep: 23})
+
+      subject.run_analyzer
     end
 
   end
