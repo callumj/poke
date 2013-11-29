@@ -11,7 +11,9 @@ module Poke
 
         results = scope.to_a
         until results.empty?
-          results.each { |q| new(q).attach_to_query }
+          Poke.system_db.transaction do
+            results.each { |q| new(q).attach_to_query }
+          end
 
           sleep sleep_time if sleep_time
           min_id = results.map(&:id).min

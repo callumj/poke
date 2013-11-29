@@ -69,12 +69,14 @@ module Poke
         Poke::Utils::DataPaging.mass_select(target_scope) do |result_batch|
           continue = true
 
-          result_batch.each do |result|
-            if result[:start_time] > max_time_point
-              continue = false
-              next
-            else
-              process_native_entry result
+          Poke.system_db.transaction do
+            result_batch.each do |result|
+              if result[:start_time] > max_time_point
+                continue = false
+                next
+              else
+                process_native_entry result
+              end
             end
           end
 
