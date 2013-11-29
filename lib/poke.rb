@@ -9,6 +9,7 @@ module Poke
   end
 
   def self.logger_path(type)
+    return nil if ENV["IN_TEST"]
     type_s = type.to_s.gsub(/\W+/, "_")
     Config["logger.#{type_s.downcase}.path"] || File.join(storage_path, "logs", "#{type_s.downcase}.log")
   end

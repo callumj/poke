@@ -1,4 +1,5 @@
 File.expand_path("#{File.dirname(__FILE__)}/../tmp/testing.db")
+ENV["IN_TEST"] = "true"
 ENV["POKE_SYSTEM_DB_PATH"] = "sqlite://#{File.expand_path("#{File.dirname(__FILE__)}/../tmp/testing.db")}"
 load "#{File.dirname(__FILE__)}/../bootstrap.rb"
 
