@@ -5,6 +5,11 @@ module Poke
 
       many_to_many :execution_events, class: "Poke::SystemModels::ExecutionEvent", join_table: :query_execution_events, left_key: :query_execution_id, right_key: :execution_event_id
 
+      def self.by_event(event_name)
+        hash = CityHash.hash64(event_name)
+        join(:query_execution_events, query_execution_id: :id).join(:execution_events, [[:name_hash, :execution_event_id], [:name_hash, hash]])
+      end
+
       def possible_indexes
         @possible_indexes ||= begin
           if self.possible_indexes_serialized

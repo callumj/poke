@@ -60,5 +60,6 @@ require 'poke/collectors'
 require 'poke/analyzers'
 require 'poke/runners'
 require 'poke/background_runner'
+require 'poke/reporters'
 
 Poke.init

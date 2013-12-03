@@ -43,6 +43,10 @@ module Poke
         self.statement_hash = CityHash.hash64 self.statement
       end
 
+      def to_s
+        statement
+      end
+
     end
   end
 end
