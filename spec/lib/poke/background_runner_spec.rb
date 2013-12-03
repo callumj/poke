@@ -23,13 +23,28 @@ describe Poke::BackgroundRunner do
       sub.runner.should == :thingo
     end
 
-    it "should thread_runner" do
+    it "should hit thread_runner" do
       expect_any_instance_of(described_class).to receive(:thread_runner) do
         :magic
       end
 
       sub = described_class.new(Object)
       sub.value.should == :magic
+    end
+
+  end
+
+  describe "#thread_runner" do
+
+    it "should hit perform_task" do
+      described_class.any_instance.stub(:perform_task)
+
+      runner = Object.new
+      expect(runner).to receive(:new)
+
+      sub = described_class.new(runner)
+      expect(sub).to receive(:perform_task)
+      sub.thread_runner
     end
 
   end
