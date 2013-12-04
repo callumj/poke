@@ -4,16 +4,9 @@ module Poke
 
       self.visible_name = "temporary_tables"
 
-      def max_results
-        options.fetch(:max, 50)
-      end
-
-      def results
-        results_scope.order(Sequel.desc(:execution_time)).limit(max_results)
-      end
-
       def results_scope
-        Poke::SystemModels::Query.join(Poke::SystemModels::QueryExecution.by_event("temporary"), query_id: :id)
+        event_scope = Poke::SystemModels::QueryExecution.by_event("temporary")
+        Poke::SystemModels::Query.join(event_scope, query_id: :id).order(Sequel.desc(:execution_time))
       end
 
     end
