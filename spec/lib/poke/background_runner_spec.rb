@@ -24,7 +24,7 @@ describe Poke::BackgroundRunner do
     end
 
     it "should hit thread_runner" do
-      expect_any_instance_of(described_class).to receive(:thread_runner) do
+      described_class.any_instance.stub(:thread_runner) do
         :magic
       end
 
