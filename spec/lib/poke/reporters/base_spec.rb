@@ -3,7 +3,10 @@ require 'spec_helper'
 describe Poke::Reporters::Base do
 
   it "should expose all known reporters" do
-    described_class.available_implementations.should == {"temporary_tables" => Poke::Reporters::TemporaryTables}
+    described_class.available_implementations.should == {
+      "temporary_tables" => Poke::Reporters::TemporaryTables,
+      "table_scans"      => Poke::Reporters::TableScans
+    }
   end
 
   it "should expect subclasses to implement results_scope" do
