@@ -16,7 +16,8 @@ describe Poke::Reporters::TemporaryTables do
       Poke::SystemModels::QueryExecution.create events: ["temporary"], query: expected_query_b
 
       expected_query_c = Poke::SystemModels::Query.create statement: "SELECT * FROM memes", occurred_at: Time.now
-      Poke::SystemModels::QueryExecution.create events: ["temporary", "filesort"], query: expected_query_c
+      Poke::SystemModels::QueryExecution.create events: ["filesort"], query: expected_query_c
+      Poke::SystemModels::QueryExecution.create events: ["temporary"], query: expected_query_c
 
       not_expected_query = Poke::SystemModels::Query.create statement: "SELECT * FROM memes", occurred_at: Time.now
       Poke::SystemModels::QueryExecution.create events: ["where", "filesort"], query: not_expected_query
