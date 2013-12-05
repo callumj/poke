@@ -9,7 +9,7 @@ task :report, :name do |t, args|
     exit 1
   end
   
-  report = klass.new.results
+  report = klass.new.results_scope.to_a
   report.each do |obj|
     STDOUT.puts obj.to_s
     STDOUT.puts "-----"

@@ -18,7 +18,7 @@ module Poke
         @options = opts
       end
 
-      def results
+      def results_scope
         raise NotImplementedError, "Must be implemented by subclass"
       end
 

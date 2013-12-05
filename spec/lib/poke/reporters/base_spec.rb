@@ -6,9 +6,9 @@ describe Poke::Reporters::Base do
     described_class.available_implementations.should == {"temporary_tables" => Poke::Reporters::TemporaryTables}
   end
 
-  it "should expect subclasses to implement results" do
+  it "should expect subclasses to implement results_scope" do
     expect do
-      subject.results
+      subject.results_scope
     end.to raise_error(NotImplementedError)
   end
 
