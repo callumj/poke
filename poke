@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+f = File.dirname(__FILE__)
+load File.join(f, "bootstrap.rb")
+
+set = ARGV.dup
+if set.empty?
+  STDERR.puts "You must provide a action."
+  Poke::Cli::Base.available_implementations.each do |name, klass|
+    STDERR.puts " * #{name}"
+  end
+  exit 1
+end
+
+name = set.delete_at 0
+Poke::Cli.invoke name, set

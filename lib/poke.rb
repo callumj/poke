@@ -61,5 +61,7 @@ require 'poke/analyzers'
 require 'poke/runners'
 require 'poke/background_runner'
 require 'poke/reporters'
+require 'poke/report_formatters'
+require 'poke/cli'
 
 Poke.init
