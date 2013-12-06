@@ -13,6 +13,8 @@ gem "rake"
 
 gem "cityhash"
 
+gem "terminal-table"
+
 group :development do
   gem "pry"
 end
