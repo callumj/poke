@@ -2,11 +2,13 @@ module Poke
   module Reporters
     class Base
 
+      include ActiveSupport::DescendantsTracker
+
       class_attribute :visible_name
       self.visible_name = nil
 
       def self.available_implementations
-        subclasses.each_with_object({}) do |klass, hash|
+        descendants.each_with_object({}) do |klass, hash|
           next unless klass.visible_name
           hash[klass.visible_name] = klass
         end
