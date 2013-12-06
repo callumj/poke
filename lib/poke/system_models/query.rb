@@ -6,6 +6,10 @@ module Poke
 
       one_to_many :query_executions, class: "Poke::SystemModels::QueryExecution", eager: :execution_events
 
+      def self.with_core
+        eager :query_executions
+      end
+
       def self.conditionally_create(obj_hash)
         existing = where(statement_hash: CityHash.hash64(obj_hash[:statement])).first
 

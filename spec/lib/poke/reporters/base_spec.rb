@@ -20,4 +20,8 @@ describe Poke::Reporters::Base do
     sub.options.should == {opt: :value}
   end
 
+  it "should provide nil for a justification" do
+    subject.justification_for(Object.new).should be_nil
+  end
+
 end
