@@ -8,9 +8,9 @@ module Poke
       def run
         reporters = Poke::Reporters::Base.available_implementations
         if report_name.nil? || (klass = reporters[report_name]).nil?
-          STDERR.puts "Must provide a report name to run"
+          error "Must provide a report name to run"
           reporters.each do |name, klass|
-            STDERR.puts " * #{name}"
+            error " * #{name}"
           end
           return false
         end
@@ -19,9 +19,9 @@ module Poke
         formatter = formatters[format]
 
         unless formatter
-          STDERR.puts "Must provide a valid format:"
+          error "Must provide a valid format:FORMAT_NAME"
           formatters.each do |name, klass|
-            STDERR.puts " * #{name}"
+            error " * #{name}"
           end
           return false
         end
@@ -30,7 +30,7 @@ module Poke
         if (runner = Poke::Runners.runner)
           runner.new.run
         else
-          STDERR.puts "No available runners for target database"
+          error "No available runners for target database"
           return false
         end
 

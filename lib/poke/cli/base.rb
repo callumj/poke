@@ -30,6 +30,26 @@ module Poke
         end
       end
 
+      def error(message)
+        @error_logger ||= Logger.new(STDERR).tap do |l| 
+          l.level = Logger::ERROR
+          l.formatter = proc do |severity, datetime, progname, msg|
+            "#{msg}\r\n"
+          end
+        end
+        @error_logger.error message
+      end
+
+      def info(message)
+        @info_logger ||= Logger.new(STDOUT).tap do |l| 
+          l.level = Logger::INFO
+          l.formatter = proc do |severity, datetime, progname, msg|
+            "#{msg}\r\n"
+          end
+        end
+        @info_logger.info message
+      end
+
     end
   end
 end
