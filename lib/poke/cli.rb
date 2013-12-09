@@ -5,6 +5,7 @@ module Poke
     require 'poke/cli/run'
     require 'poke/cli/report'
     require 'poke/cli/db'
+    require 'poke/cli/console'
 
     def self.invoke(name, arg_list)
       inst = Poke::Cli::Base.available_implementations[name].new(arg_list)

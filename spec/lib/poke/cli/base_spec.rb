@@ -6,7 +6,8 @@ describe Poke::Cli::Base do
     described_class.available_implementations.should == {
       "report"  => Poke::Cli::Report,
       "run"     => Poke::Cli::Run,
-      "db"      => Poke::Cli::Db
+      "db"      => Poke::Cli::Db,
+      "console" => Poke::Cli::Console
     }
   end
 
