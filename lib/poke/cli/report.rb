@@ -12,7 +12,7 @@ module Poke
           reporters.each do |name, klass|
             STDERR.puts " * #{name}"
           end
-          exit 1
+          return false
         end
 
         formatters = Poke::ReportFormatters::Base.available_implementations
@@ -23,7 +23,7 @@ module Poke
           formatters.each do |name, klass|
             STDERR.puts " * #{name}"
           end
-          exit 1
+          return false
         end
 
         # force a data collection run
@@ -31,7 +31,7 @@ module Poke
           runner.new.run
         else
           STDERR.puts "No available runners for target database"
-          exit 1
+          return false
         end
 
         report = klass.new
