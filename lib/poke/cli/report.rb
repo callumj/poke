@@ -25,7 +25,15 @@ module Poke
           end
           exit 1
         end
-        
+
+        # force a data collection run
+        if (runner = Poke::Runners.runner)
+          runner.new.run
+        else
+          STDERR.puts "No available runners for target database"
+          exit 1
+        end
+
         report = klass.new
         formatter.new(reporter: report).to_s
       end
