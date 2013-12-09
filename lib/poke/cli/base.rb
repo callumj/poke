@@ -20,6 +20,16 @@ module Poke
         @arg_list = arg_list
       end
 
+      def options
+        @options ||= begin
+          joined = arg_list[1..arg_list.length].join(" ")
+          split = joined.split(/(\w+)\:/)
+          split.delete_at 0
+          split = split.map { |s| s.strip }
+          Hash[*split].with_indifferent_access
+        end
+      end
+
     end
   end
 end

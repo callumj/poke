@@ -38,16 +38,6 @@ module Poke
         formatter.new(reporter: report).to_s
       end
 
-      def options
-        @options ||= begin
-          joined = arg_list[1..arg_list.length].join(" ")
-          split = joined.split(/(\w+)\:/)
-          split.delete_at 0
-          split = split.map { |s| s.strip }
-          Hash[*split].with_indifferent_access
-        end
-      end
-
       def report_name
         @report_name ||= arg_list[0]
       end

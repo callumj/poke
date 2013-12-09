@@ -8,15 +8,6 @@ describe Poke::Cli::Report do
     subject.report_name.should == "a_report_please"
   end
 
-  it "should fetch the options" do
-    subject.options.should == {
-      arg1: "1",
-      arg2: "2",
-      arg3: "hello my name is joe",
-      arg4: "true"
-    }.with_indifferent_access
-  end
-
   describe "#run" do
 
     it "should exit if the report_name is not present" do
