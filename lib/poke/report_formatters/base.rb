@@ -27,7 +27,7 @@ module Poke
       end
 
       def to_file(f_descriptor)
-        raise NotImplementedError, "Must be implemented by subclass"
+        f_descriptor.write to_s
       end
 
     end
