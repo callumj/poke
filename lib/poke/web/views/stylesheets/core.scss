@@ -62,7 +62,7 @@ html, body {
 #container {
   margin-right: auto;
   margin-left: auto;
-  max-width: 900px;
+  max-width: 1132px;
 
   .section {
     padding: 2em 0 1em 0;
@@ -80,19 +80,43 @@ html, body {
 }
 
 table {
+  border-left: 1px solid #6C86A3;
+  border-right:1px solid #6C86A3;
+  border-collapse: collapse;
   width:100%;
   table-layout: fixed;
-}
 
-td, td div { 
-  width:100%;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow: ellipsis;
+  td, td div { 
+    width:100%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
 
-  &:hover {
-    overflow: visible;
-    white-space: normal;
-    cursor: pointer
+    &:hover {
+      overflow: visible;
+      white-space: normal;
+      cursor: pointer
+    }
+  }
+
+  th, td {
+    padding: 0.4em;
+  }
+
+  thead {
+    th {
+      font-weight: 600;
+      background-color: #6C86A3;
+      color: white;
+    }
+
+    tr {
+      text-align: left;
+    }
+  }
+
+  tbody {
+    td {
+    }
   }
 }
