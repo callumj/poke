@@ -78,3 +78,21 @@ html, body {
     }
   }
 }
+
+table {
+  width:100%;
+  table-layout: fixed;
+}
+
+td, td div { 
+  width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    overflow: visible;
+    white-space: normal;
+    cursor: pointer
+  }
+}

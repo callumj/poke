@@ -2,7 +2,20 @@
   <h2>Slowest queries</h2>
   <h4>in the last 24 hours</h4>
 
-  <% @slowest_queries.each do |query| %>
-    <%= query.statement %>
-  <% end %>
+  <table class="data_table">
+    <thead>
+      <tr>
+        <th width="80%">Query</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @slowest_queries.each do |query| %>
+        <tr>
+          <td><%= query.statement %></td>
+          <td><%= query.execution_time %>s</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
