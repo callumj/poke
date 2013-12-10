@@ -3,6 +3,7 @@ module Poke
     class Db < Base
 
       self.visible_name = "db"
+      self.description  = "Perform actions on the internal database"
 
       def run
         case arg_list[0]

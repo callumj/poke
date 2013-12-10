@@ -6,9 +6,16 @@ module Poke
     require 'poke/cli/report'
     require 'poke/cli/db'
     require 'poke/cli/console'
+    require 'poke/cli/help'
 
     def self.invoke(name, arg_list)
-      inst = Poke::Cli::Base.available_implementations[name].new(arg_list)
+      klass = Poke::Cli::Base.available_implementations[name]
+      unless klass
+        invoke "help", []
+        return false
+      end
+
+      inst = klass.new(arg_list)
       res = inst.run
 
       if res.is_a?(String)

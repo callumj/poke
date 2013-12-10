@@ -5,7 +5,10 @@ module Poke
       include ActiveSupport::DescendantsTracker
 
       class_attribute :visible_name
+      class_attribute :description
+      
       self.visible_name = nil
+      self.description  = nil
 
       def self.available_implementations
         descendants.each_with_object({}) do |klass, hash|

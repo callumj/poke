@@ -3,6 +3,7 @@ module Poke
     class Report < Base
 
       self.visible_name = "report"
+      self.description  = "Run reports"
 
       def run
         reporters = Poke::Reporters::Base.available_implementations

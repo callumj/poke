@@ -3,6 +3,7 @@ module Poke
     class Console < Base
 
       self.visible_name = "console"
+      self.description  = "Starts a console instance with full access to Poke"
 
       def run
         info "Starting Pry instance"
