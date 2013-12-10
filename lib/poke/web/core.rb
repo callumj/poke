@@ -1,4 +1,5 @@
 require 'sinatra/base'
+require 'sass'
 
 module Poke
   module Web
@@ -8,6 +9,13 @@ module Poke
 
       get "/" do
         erb :index
+      end
+
+      get "/stylesheets/:sheet_path.css" do
+        path = params[:sheet_path].gsub(/\.\.+/, "")
+        
+        content_type 'text/css', charset: 'utf-8'
+        scss :"stylesheets/#{path}"
       end
 
     end

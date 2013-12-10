@@ -3,6 +3,7 @@ source "https://rubygems.org"
 gem "activesupport"
 
 gem "sinatra"
+gem "sass"
 
 gem "sequel"
 
