@@ -34,8 +34,9 @@ module Poke
   end
 
   def self.target_db
-    return unless Config["target_db.path"]
-    @target_db ||= Sequel.connect(Config["target_db.path"], logger: logger_for(:target_db))
+    return unless (path = Config["target_db.path"]).present?
+    path.gsub! /^mysql:/, "mysql2:"
+    @target_db ||= Sequel.connect(path, logger: logger_for(:target_db))
   end
 
   def self.init

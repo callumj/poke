@@ -1,0 +1,21 @@
+target_db.path:
+  description: "The full path to the database server for analysis. In the form of a connection string"
+  type:        String
+mysql.collection_mode:
+  description: "How data will be collected. Either from a slow log file or the slow log table"
+  options: ["file", "table"]
+mysql.slow_log_file:
+  description: "Location of the MySQL slow log file if mysql.collection_mode is set to 'file'"
+  type:        String
+mysql.analyze.enabled:
+  description: "Perform analysis of the queries after collection for reporting capability"
+  default:     true
+  type:        Boolean
+mysql.analyze.sleep:
+  description: "Sleep time in seconds between each analyze batch. Useful for limiting the strain on a server"
+  type:        Fixnum
+  default:     1
+mysql.analyze.limit:
+  description: "The number of queries to analyze in a batch"
+  type:        Fixnum
+  default:     50
