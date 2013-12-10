@@ -6,7 +6,8 @@ module Poke
       self.description  = "Start the application"
 
       def run
-        Poke::BackgroundRunner.kickoff
+        Poke::BackgroundRunner.kickoff true
+        Poke::Web::Core.run!
       end
 
     end

@@ -1,0 +1,1 @@
+require 'poke/web/core'

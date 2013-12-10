@@ -13,7 +13,7 @@ module Poke
       @active_thread
     end
 
-    def self.kickoff
+    def self.kickoff(no_join = false)
       if active_thread && active_thread.alive?
         Poke.app_logger.error "Runner is active, will not start"
         raise AlreadyRunningError, "Active thread is currently running"
@@ -24,7 +24,7 @@ module Poke
         Poke.app_logger.error "Will not start background thread, no runner available."
       else
         @active_thread = new(runner)
-        active_thread.join
+        active_thread.join unless no_join
       end
     end
 
