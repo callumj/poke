@@ -2,7 +2,6 @@ module Poke
   module Cli
     class Run < Base
 
-      class_attribute :visible_name
       self.visible_name = "run"
 
       def run

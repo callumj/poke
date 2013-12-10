@@ -2,7 +2,6 @@ module Poke
   module Cli
     class Db < Base
 
-      class_attribute :visible_name
       self.visible_name = "db"
 
       def run

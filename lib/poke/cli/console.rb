@@ -2,7 +2,6 @@ module Poke
   module Cli
     class Console < Base
 
-      class_attribute :visible_name
       self.visible_name = "console"
 
       def run
