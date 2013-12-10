@@ -8,7 +8,8 @@ describe Poke::Cli::Base do
       "run"     => Poke::Cli::Run,
       "db"      => Poke::Cli::Db,
       "console" => Poke::Cli::Console,
-      "help"    => Poke::Cli::Help
+      "help"    => Poke::Cli::Help,
+      "config"  => Poke::Cli::Config
     }
   end
 
