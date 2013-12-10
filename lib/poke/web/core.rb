@@ -8,6 +8,7 @@ module Poke
       set :root, File.join(APP_PATH, "lib", "poke", "web")
 
       get "/" do
+        @slowest_queries = Poke::SystemModels::Query.last_period.limit(25).all
         erb :index
       end
 

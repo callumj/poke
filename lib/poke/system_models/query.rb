@@ -31,6 +31,10 @@ module Poke
       def self.ordered
         order(Sequel.desc(:id))
       end
+
+      def self.last_period(period = 24.hours)
+        ordered.where { occurred_at >= (period.ago) }
+      end
       
       def before_save
         set_hashes
